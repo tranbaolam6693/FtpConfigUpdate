@@ -17,6 +17,7 @@
 class Batch_FtpConfigUpdate extends Custom_Controller_Batch_Abstract
 {
 
+    private $version = '1.0';
     private $readLogFtpFailPath = null;
     private $logFtpFailPath = null;
 
@@ -185,7 +186,7 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_Abstract
 
                 //backup
                 if($this->useBackup){
-                    copy($command, $command.'.'.time().'.bak');
+                    copy($command, $command.'.'.$this->version.'.bak',$stream_context);
                 }
 
                 $newContent = $setContent['content'] ;
