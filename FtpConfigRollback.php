@@ -19,6 +19,11 @@ class Batch_FtpConfigRollback extends Custom_Controller_Batch_FtpConfig
             throw new Exception('Need last publish date');
         }
 
+        if(isset($args[3])){
+            $this->setReadLogFtpFailPath($args[3]);
+            $ids = $this->readFromLog();
+        }
+
         $this->version = $args[1];
         $this->publishDate = $args[2];
 
@@ -30,6 +35,7 @@ class Batch_FtpConfigRollback extends Custom_Controller_Batch_FtpConfig
         // write info
         $this->info("ROLLBACK CONFIG VERSION `$this->version`");
         $this->info("DATE: ". date('Y-m-d H:i:s', time()));
+        $this->info("Log FTP Fail: $this->logFtpFailPath");
         $this->info('======================================================');
 
         $companyTable = App_Model_DbTable_Company::master();
