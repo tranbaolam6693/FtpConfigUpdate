@@ -56,13 +56,14 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
             $ids = $this->readFromLog();
         }
 
-        // set log to write company fail
-        $this->setFtpLogFail();
+        // set log to write company success/fail
+        $this->setFtpLog();
 
         // write info
         $this->info("UPDATE CONFIG KEY `$this->key`: $this->oldValue => $this->value");
         $this->info("DATE: ". date('Y-m-d H:i:s', time()));
-        $this->info("Log FTP Fail: $this->logFtpFailPath");
+        $this->info("Log FTP Success: ". basename($this->logFtpSuccessPath));
+        $this->info("Log FTP Fail: ". basename($this->logFtpFailPath));
         $this->info('======================================================');
 
         $companyTable = App_Model_DbTable_Company::master();
@@ -102,11 +103,12 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
                     $company->ftp_password
                 );
                 $this->info("*** STATUS : Done");
+                $this->ftpSuccess($company->id);
             }
             catch(\Exception $e){
                 $this->info("*** STATUS : Failed");
                 $this->info($e->getMessage());
-                $this->logger()->crit($company->id);
+                $this->ftpFail($company->id);
             }
             $this->info('======================================================');
         }

@@ -4,6 +4,8 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
     protected $version = '1.0';
     protected $readLogFtpFailPath = null;
     protected $logFtpFailPath = null;
+    protected $readLogFtpSuccessPath = null;
+    protected $logFtpSuccessPath = null;
     protected $key, $value, $oldValue, $publishDate;
     protected $path = '/files/public/setting/';
     protected $useBackup = true;
@@ -200,28 +202,56 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
     }
 
     /**
+     * set log file to read
+     * @param string $filename
+     */
+    protected function setReadLogFtpSuccessPath($filename){
+        $this->readLogFtpSuccessPath =  APPLICATION_PATH . '/../log/'  . $filename  . '.log';
+    }
+
+    /**
+     * get log
+     * @return string|null
+     */
+    protected function getReadLogFtpSuccessPath(){
+        return $this->readLogFtpSuccessPath;
+    }
+
+    /**
      * set log file to write
      * @throws Zend_Log_Exception
      */
-    protected function setFtpLogFail(){
-        $config = array(Zend_Log::CRIT, '=');
+    protected function setFtpLog(){
+        $configs = array(
+            'FtpFail' => array(Zend_Log::CRIT, '='),
+            'FtpSuccess' => array(Zend_Log::NOTICE, '=')
+        );
 
-        $this->logFtpFailPath = APPLICATION_PATH . '/../log/' . get_class($this) . '_FtpLoginFail_' . time()  . '.log';
+        foreach($configs as $key => $config){
+            $path = 'log'.$key.'Path';
+            $this->{$path} = $filename = APPLICATION_PATH . '/../log/' . get_class($this) . '_'.$key.'_' . time()  . '.log';
 
-        $filename = $this->logFtpFailPath;
+            if (@file_exists($filename) || false !== @file_put_contents($filename, '', FILE_APPEND)) {
+                @chmod($filename, 0777);
+            }
 
-        if (@file_exists($filename) || false !== @file_put_contents($filename, '', FILE_APPEND)) {
-            @chmod($filename, 0777);
+            $writer = new Zend_Log_Writer_Stream($filename);
+
+            $filter = new Zend_Log_Filter_Priority($config[0], $config[1]);
+            $writer->addFilter($filter);
+
+            $formatter = new Zend_Log_Formatter_Simple("%message%" . PHP_EOL);
+            $writer->setFormatter($formatter);
+
+            $this->logger()->addWriter($writer);
         }
+    }
 
-        $writer = new Zend_Log_Writer_Stream($filename);
+    protected function ftpSuccess($message){
+        return $this->logger()->notice($message);
+    }
 
-        $filter = new Zend_Log_Filter_Priority($config[0], $config[1]);
-        $writer->addFilter($filter);
-
-        $formatter = new Zend_Log_Formatter_Simple("%message%" . PHP_EOL);
-        $writer->setFormatter($formatter);
-
-        $this->_logger->addWriter($writer);
+    protected function ftpFail($message){
+        return $this->logger()->crit($message);
     }
 }
