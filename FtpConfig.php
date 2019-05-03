@@ -8,6 +8,7 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
     protected $path = '/files/public/setting/';
     protected $useBackup = true;
     protected $loginFailed = 'FTP_LOGIN_FAILED';
+    protected $backupExtension = '.bak';
 
     protected function streamOptions(){
         return array('ftp' => array('overwrite' => true));
@@ -31,7 +32,15 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
     }
 
     protected function getBackUpPath(){
-        return $this->path.'backups_'.$this->version;
+        return $this->path.'backups_'.$this->getVersionString();
+    }
+
+    protected function getVersionString(){
+        return str_replace('.','_', $this->version);
+    }
+
+    protected function getBackUpFullPath(){
+        return $this->getBackUpPath().DIRECTORY_SEPARATOR;
     }
 
     protected function setBackupFolder($baseCommand){
@@ -99,14 +108,15 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
 
 
     /**
-     * Get all files from path in FTP
-     * @param $host
-     * @param $user
-     * @param $password
+     * Get all files from a path in FTP
+     * @param string $host
+     * @param string $user
+     * @param string $password
+     * @param string $path
      * @return array
      * @throws Exception
      */
-    protected function getFilesFromPath($host,$user,$password){
+    protected function getFilesFromPath($host,$user,$password, $path = null){
         $conn = ftp_connect($host);
         $loggedIn = ftp_login($conn,  $user, $password);
 
@@ -114,23 +124,23 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
             throw new Exception($this->loginFailed);
         }
 
+        $passiveMode = ftp_pasv($conn, true);
+
         // get FTP Path
-        $path = $this->path;
+        if(is_null($path)){
+            $path = $this->path;
+        }
 
         // Get lists
-        $nlist  = ftp_nlist($conn, $path);
-        $rawlist    = ftp_rawlist($conn, $path);
+        $list  = ftp_nlist($conn, $path);
 
         $files   = array();
 
-        for ($i = 0; $i < count($nlist) - 1; $i++)
+        foreach ($list as $file)
         {
-            if($rawlist[$i][0] == 'd')
-            {
-                continue;
-            }
+            if($this->ftp_isDir($conn,$file)) continue;
 
-            $files[] = $nlist[$i];
+            $files[] = $file;
         }
 
         ftp_close($conn);
@@ -138,6 +148,19 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
         return $files;
     }
 
+    protected function ftp_isDir($connect_id,$dir)
+    {
+        if(ftp_chdir($connect_id,$dir))
+        {
+            ftp_cdup($connect_id);
+            return true;
+
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     /**
      * Read from log

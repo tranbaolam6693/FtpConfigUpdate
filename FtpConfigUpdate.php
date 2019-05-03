@@ -159,8 +159,8 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
 
                 //backup
                 if($this->useBackup){
-                    $bkFileName = $fileName.'.bak';
-                    $desPath = $baseCommand.$this->getBackUpPath().DIRECTORY_SEPARATOR.$bkFileName;
+                    $bkFileName = $fileName.$this->backupExtension;
+                    $desPath = $baseCommand.$this->getBackUpFullPath().$bkFileName;
                     copy($command, $desPath,$stream_context);
                 }
 
