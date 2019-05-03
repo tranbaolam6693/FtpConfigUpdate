@@ -23,7 +23,7 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_Abstract
 
     private $key, $value, $oldValue, $publishDate;
     private $path = '/files/public/setting/';
-    private $useBackup = false;
+    private $useBackup = true;
     private $loginFailed = 'FTP_LOGIN_FAILED';
 
     private function streamOptions(){
@@ -45,6 +45,19 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_Abstract
             'contact_uri-kyojuu_*.ini',
             'api.ini'
         ];
+    }
+
+    private function getBackUpPath(){
+        return $this->path.'backups_'.$this->version;
+    }
+
+    private function setBackupFolder($baseCommand){
+        $backupPath = $this->getBackUpPath();
+        $command = $baseCommand.$backupPath;
+        if(is_dir($command)){
+            return;
+        }
+        mkdir($command,0777, true);
     }
 
     /**
@@ -165,12 +178,18 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_Abstract
         // get all files from path
         $files = $this->getFilesFromPath($host,$user,$password);
 
+        $baseCommand = "ftp://$user:$password@$host";
+
+        if($this->useBackup){
+            $this->setBackupFolder($baseCommand);
+        }
+
         foreach($files as $file){
             $fileName = basename($file);
 
             if(!$this->isAllow($fileName)) continue;
 
-            $command = "ftp://$user:$password@$host".$file;
+            $command = $baseCommand.$file;
 
             //read
             $fp = fopen($command,"r");
@@ -186,7 +205,9 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_Abstract
 
                 //backup
                 if($this->useBackup){
-                    copy($command, $command.'.'.$this->version.'.bak',$stream_context);
+                    $bkFileName = $fileName.'.'.$this->version.'.bak';
+                    $desPath = $baseCommand.$this->getBackUpPath().DIRECTORY_SEPARATOR.$bkFileName;
+                    copy($command, $desPath,$stream_context);
                 }
 
                 $newContent = $setContent['content'] ;
