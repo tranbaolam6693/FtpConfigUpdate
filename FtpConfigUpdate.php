@@ -103,6 +103,7 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_Abstract
             'company.ftp_server_name',
             'company.ftp_user_id',
             'company.ftp_password',
+            'company.contract_type'
         ));
         $select->setIntegrityCheck(false);
         if(isset($ids) && count($ids) > 0 ){
@@ -119,6 +120,8 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_Abstract
         $companies = $companyTable->setAutoLogicalDelete(false)->fetchAll($select);
 
         foreach($companies as $company){
+            // pass site demo
+            if($company->contract_type == App_Model_List_CompanyAgreementType::CONTRACT_TYPE_DEMO) continue;
             $textMessage = "Company: $company->id"  ;
             $this->info("$textMessage");
             try{
