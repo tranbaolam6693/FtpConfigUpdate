@@ -23,6 +23,7 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
      */
     protected function _action($args)
     {
+        set_time_limit(0);
         error_reporting(E_ALL ^ E_WARNING);
 
         if(!isset($args[1])){
