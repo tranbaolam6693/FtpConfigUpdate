@@ -47,8 +47,16 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
         switch($this->type){
             case $fixState:
                 if (!$this->contains('Batch_FtpConfigUpdate_FtpFail',$args[2])) {
-                    throw new Exception('Invalid. File name must be `Batch_FtpConfigUpdate_FtpFail_{time}`.');
+                    throw new Exception('Invalid. File name must be `Batch_FtpConfigUpdate_FtpFail_{time_run_batch}_{publish_date}`.');
                 }
+
+                // read publish date from file name
+                $extData = explode('_',$args[2]);
+                $publishDateRawData = end($extData);
+                $dt = new DateTime();
+                $dt->setTimestamp($publishDateRawData);
+                $this->publishDate = $dt->format('Y-m-d H:m:s');
+
                 $this->setReadLogFtpFailPath($args[2]);
                 // đọc từ file này lấy ra list ids company bị lỗi
                 $ids = $this->readFromLog();
@@ -78,7 +86,13 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
         $this->value = $args[5];
 
         // set log to write company success/fail
-        $this->setFtpLog();
+        $publishDateObject = \DateTime::createFromFormat('Y-m-d H:m:s', $this->publishDate);
+        var_dump($this->publishDate);
+        if(!$publishDateObject){
+            throw new Exception('Please set publish date as format `Y-m-d H:m:s`');
+        }
+        $publishDateTimestamp = $publishDateObject->getTimestamp();
+        $this->setFtpLog($publishDateTimestamp);
 
         // write info
         $this->info("UPDATE CONFIG KEY `$this->key`: $this->oldValue => $this->value");

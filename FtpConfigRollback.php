@@ -16,21 +16,25 @@ class Batch_FtpConfigRollback extends Custom_Controller_Batch_FtpConfig
         }
 
         if(!isset($args[2])){
-            throw new Exception('Need last publish date');
+            throw new Exception('Need set file FTP list to rollback');
         }
 
-        if(isset($args[3])){
-            $this->setReadLogFtpFailPath($args[3]);
-            $ids = $this->readFromLog();
+        if (!$this->contains('Batch_FtpConfigUpdate_FtpSuccess',$args[2])) {
+            throw new Exception('Invalid. File name must be `Batch_FtpConfigUpdate_FtpSuccess_{time_run_batch}_{publish_date}`.');
         }
 
         $this->version = $args[1];
-        $this->publishDate = $args[2];
 
-        if(isset($args[3])){
-            $this->setReadLogFtpFailPath($args[3]);
-            $ids = $this->readFromLog();
-        }
+        // read publish date from file name
+        $extData = explode('_',$args[2]);
+        $publishDateRawData = end($extData);
+        $dt = new DateTime();
+        $dt->setTimestamp($publishDateRawData);
+        $this->publishDate = $dt->format('Y-m-d H:m:s');
+        // end
+
+        $this->setReadLogFtpFailPath($args[2]);
+        $ids = $this->readFromLog();
 
         // write info
         $this->info("ROLLBACK CONFIG VERSION `$this->version`");
@@ -54,7 +58,7 @@ class Batch_FtpConfigRollback extends Custom_Controller_Batch_FtpConfig
         }
         $select->joinLeft('associated_company_hp', 'associated_company_hp.company_id = company.id', array());
         $select->joinRight('hp_page','associated_company_hp.current_hp_id = hp_page.hp_id', array());
-        $select->where('hp_page.published_at < ?', $this->publishDate);
+        //$select->where('hp_page.published_at < ?', $this->publishDate);
         $select->where('company.delete_flg = ?', 0);
         $select->order('hp_page.published_at DESC');
         $select->group(array('company.id'));
