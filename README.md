@@ -8,17 +8,17 @@ Add `FtpConfigUpdate.php` + `FtpConfigRollback.php` => `/application/batch/contr
 
 **Usage:**
 
-_>  php index.php development app FtpConfigUpdate `type` `param` `key` `old_value` `new_value`_
+_>  php index.php development app FtpConfigUpdate `type` `param` `old_value` `new_value`_
 
 _> php index.php development app FtpConfigRollback `version` `param`_
 
 **Update Batch:**
 
-_>  Example: php index.php development app FtpConfigUpdate `update` `2019-05-03 00:00:00` `domain` `127.0.0.1` `127.0.0.1a`_
+_>  Example: php index.php development app FtpConfigUpdate `update` `"2019-05-03 00:00:00"` `127.0.0.1` `127.0.0.1a`_
 
 **Fix Update Batch (If connect FTP Fail):**
 
-_>  Example: php index.php development app FtpConfigUpdate `fix` `Batch_FtpConfigUpdate_FtpFail_1557110064_1543762800` `domain` `127.0.0.1` `127.0.0.1a`_
+_>  Example: php index.php development app FtpConfigUpdate `fix` `Batch_FtpConfigUpdate_FtpFail_1557110064_1543762800` `127.0.0.1` `127.0.0.1a`_
 
 **Rollback Batch:**
 
@@ -26,7 +26,7 @@ _> php index.php development app FtpConfigRollback `1.0` `Batch_FtpConfigUpdate_
 
 **Note::** 
 
-_`version` được set trong file `FtpConfigUpdate.php`
+_`version` được set trong file `FtpConfig.php`
 
 _`type` chỉ được truyền `update` hoặc `fix`
 
