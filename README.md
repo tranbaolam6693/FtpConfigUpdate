@@ -2,9 +2,9 @@
 
 **Install**
 
-Bỏ `FtpConfig.php` => `/library/Custom/Controller/Batch/`
+Add `FtpConfig.php` => `/library/Custom/Controller/Batch/`
 
-Bỏ `FtpConfigUpdate.php` + `FtpConfigRollback.php` => `/application/batch/controllers/`
+Add `FtpConfigUpdate.php` + `FtpConfigRollback.php` => `/application/batch/controllers/`
 
 **Usage:**
 
