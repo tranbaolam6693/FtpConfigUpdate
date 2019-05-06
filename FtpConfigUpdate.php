@@ -1,7 +1,7 @@
 <?php
 
 /**
- * php index.php development app FtpConfigUpdate {type} {param} {key} {old_value] {new_value}
+ * php index.php development app FtpConfigUpdate {type} {param} {old_value] {new_value}
  *
  * VD:
  * php index.php development app FtpConfigUpdate update 2019-05-03 domain 172.23.0.2 172.23.0.3
@@ -65,29 +65,23 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
                 $this->publishDate = $args[2];
         }
 
-        if(!isset($args[3])){
-            throw new Exception('Need key to update');
-        }
-
-        if( !isset($args[4]) ){
+        if( !isset($args[3]) ){
             throw new Exception('Need old value to check');
         }
 
-        if(!isset($args[5])){
+        if(!isset($args[4])){
             throw new Exception('Need new value to update');
         }
 
-        if($args[4] == $args[5]){
+        if($args[3] == $args[4]){
             throw new Exception('Old and new value cannot be the same');
         }
 
-        $this->key = $args[3];
-        $this->oldValue = $args[4];
-        $this->value = $args[5];
+        $this->oldValue = $args[3];
+        $this->value = $args[4];
 
         // set log to write company success/fail
         $publishDateObject = \DateTime::createFromFormat('Y-m-d H:m:s', $this->publishDate);
-        var_dump($this->publishDate);
         if(!$publishDateObject){
             throw new Exception('Please set publish date as format `Y-m-d H:m:s`');
         }
@@ -95,7 +89,7 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
         $this->setFtpLog($publishDateTimestamp);
 
         // write info
-        $this->info("UPDATE CONFIG KEY `$this->key`: $this->oldValue => $this->value");
+        $this->info("UPDATE CONFIG KEY `". implode(',', $this->key)."`: $this->oldValue => $this->value");
         if($this->type == $fixState){
             $this->info("FIX BATCH FROM FILE: ". $this->readLogFtpFailPath);
         }
@@ -193,8 +187,10 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
             $content = fread($fp,filesize($command));
             fclose($fp); unset($fp);
 
+            $removeSchema = in_array($fileName,$this->filesNoSchemaUrl());
+
             //update new content
-            $setContent = $this->setContent($content);
+            $setContent = $this->setContent($content,$removeSchema, $fileName);
 
             // if file is effect
             if($setContent['isChanged']){

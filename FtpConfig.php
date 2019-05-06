@@ -6,7 +6,8 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
     protected $logFtpFailPath = null;
     protected $readLogFtpSuccessPath = null;
     protected $logFtpSuccessPath = null;
-    protected $key, $value, $oldValue, $publishDate;
+    protected $key = ['domain','api_url'];
+    protected $value, $oldValue, $publishDate;
     protected $path = '/files/public/setting/';
     protected $useBackup = true;
     protected $loginFailed = 'FTP_LOGIN_FAILED';
@@ -29,6 +30,12 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
             'contact_request-uri-kyojuu_*.ini',
             'contact_uri-jigyou_*.ini',
             'contact_uri-kyojuu_*.ini',
+            'api.ini'
+        ];
+    }
+
+    protected function filesNoSchemaUrl(){
+        return [
             'api.ini'
         ];
     }
@@ -57,9 +64,11 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
     /**
      * Set new Content
      * @param string $content
+     * @param string $removeSchema
+     * @param string $fileName
      * @return array
      */
-    protected function setContent($content){
+    protected function setContent($content, $removeSchema = false, $fileName = ''){
 
         // define text string
         $newContent = "";
@@ -71,11 +80,21 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
 
         //search all line as key => value, update value
         foreach($data as $k => $v){
-            // if not found key, continue to new line
-            if (strpos($v, $this->key) === false)  continue;
+            // if not found keys, continue to new line
+            if(strpos($v, 'domain') === false && strpos($v, 'api_url') === false) continue;
+
+            //convert data if remove schema url
+            $newData = $this->value;
+            $oldValue = $this->oldValue;
+            if($removeSchema){
+                $newData = $this->removeSchemaUrl($newData);
+                $oldValue = $this->removeSchemaUrl($oldValue);
+            }
+
             // if have old value, will check if not found old value => continue
-            if(strpos($v, $this->oldValue) === false) continue;
-            $data[$k] = str_replace($this->oldValue,$this->value,$v);
+            if(strpos($v, $oldValue) === false) continue;
+
+            $data[$k] = str_replace($oldValue,$newData,$v);
             $isChanged = true;
         }
 
@@ -219,9 +238,10 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
 
     /**
      * set log file to write
+     * @param $publishDate
      * @throws Zend_Log_Exception
      */
-    protected function setFtpLog(){
+    protected function setFtpLog($publishDate = ''){
         $configs = array(
             'FtpFail' => array(Zend_Log::CRIT, '='),
             'FtpSuccess' => array(Zend_Log::NOTICE, '=')
@@ -229,7 +249,7 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
 
         foreach($configs as $key => $config){
             $path = 'log'.$key.'Path';
-            $this->{$path} = $filename = APPLICATION_PATH . '/../log/' . get_class($this) . '_'.$key.'_' . time()  . '.log';
+            $this->{$path} = $filename = APPLICATION_PATH . '/../log/' . get_class($this) . '_'.$key.'_' . time().'_'. $publishDate  . '.log';
 
             if (@file_exists($filename) || false !== @file_put_contents($filename, '', FILE_APPEND)) {
                 @chmod($filename, 0777);
@@ -258,5 +278,9 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
     protected function contains($needle, $haystack)
     {
         return strpos($haystack, $needle) !== false;
+    }
+
+    protected function removeSchemaUrl($url){
+        return preg_replace("(^https?://)", "", $url );
     }
 }
