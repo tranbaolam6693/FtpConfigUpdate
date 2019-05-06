@@ -1,21 +1,22 @@
 <?php
 
-//php index.php development app FtpConfigUpdate {key} {old_value] {new_value} {date} {log_file_name}
-// key, old_value, new_value, date là required, log_file_name tùy.
-// Example:
-// > php index.php development app FtpConfigUpdate domain 127.0.0.1 127.0.0.2 2019-05-03 Batch_FtpConfigUpdate_FtpLoginFail_1556786800
-// Sẽ tìm hết tất cả key là domain trong list file files()
-// Tiến hành replace old_value => new_value
-// {date} là ngày cuối cùng publish
-
-// nếu truyền {log_file_name} vào thì sẽ chỉ lấy list id từ cái file này
-//(tên file log này được in ra trong sourcecode/log/Batch_FtpConfigUpdate_info.log)
+/**
+ * php index.php development app FtpConfigUpdate {type} {param} {key} {old_value] {new_value}
+ *
+ * VD:
+ * php index.php development app FtpConfigUpdate update 2019-05-03 domain 172.23.0.2 172.23.0.3
+ * php index.php development app FtpConfigUpdate fix Batch_FtpConfigUpdate_FtpFail_1557107377 domain 172.23.0.2 172.23.0.3
+ */
 
 // log info /log/Batch_FtpConfigUpdate_info.log
 // log error /log/Batch_FtpConfigUpdate_error.log
 
 class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
 {
+    protected $type = 'update';
+    protected static $FIX_STATE = 'fix';
+    protected static $UPDATE_STATE = 'update';
+
     /**
      * @param array $args
      * @throws Exception
@@ -25,42 +26,65 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
         error_reporting(E_ALL ^ E_WARNING);
 
         if(!isset($args[1])){
-            throw new Exception('Need key to update');
+            throw new Exception('Need set type `update` or `fix`');
         }
 
-        if( !isset($args[2]) ){
-            throw new Exception('Need old value to check');
+        $updateState = self::$UPDATE_STATE;
+        $fixState = self::$FIX_STATE;
+        if(!in_array($args[1],[$updateState, $fixState])){
+            throw new Exception("Only support type `$updateState` or `$fixState`");
+        }
+
+        $this->type = $args[1];
+
+        if(!isset($args[2])){
+            if($this->type == 'update'){
+                throw new Exception('Need set publish date');
+            }
+            else throw new Exception('Need set file FTP fail list');
+        }
+
+        switch($this->type){
+            case $fixState:
+                if (!$this->contains('Batch_FtpConfigUpdate_FtpFail',$args[2])) {
+                    throw new Exception('Invalid. File name must be `Batch_FtpConfigUpdate_FtpFail_{time}`.');
+                }
+                $this->setReadLogFtpFailPath($args[2]);
+                // đọc từ file này lấy ra list ids company bị lỗi
+                $ids = $this->readFromLog();
+                break;
+            default:
+                $this->publishDate = $args[2];
         }
 
         if(!isset($args[3])){
+            throw new Exception('Need key to update');
+        }
+
+        if( !isset($args[4]) ){
+            throw new Exception('Need old value to check');
+        }
+
+        if(!isset($args[5])){
             throw new Exception('Need new value to update');
         }
 
-        if(!isset($args[4])){
-            throw new Exception('Need last publish date');
-        }
-
-        if($args[2] == $args[3]){
+        if($args[4] == $args[5]){
             throw new Exception('Old and new value cannot be the same');
         }
 
-        $this->key = $args[1];
-        $this->oldValue = $args[2];
-        $this->value = $args[3];
-        $this->publishDate = $args[4];
-
-        // Nếu có truyền log file vô, đọc từ file này lấy ra list ids company bị lỗi
-        // Nếu k truyền, lấy hết company
-        if(isset($args[5])){
-            $this->setReadLogFtpFailPath($args[5]);
-            $ids = $this->readFromLog();
-        }
+        $this->key = $args[3];
+        $this->oldValue = $args[4];
+        $this->value = $args[5];
 
         // set log to write company success/fail
         $this->setFtpLog();
 
         // write info
         $this->info("UPDATE CONFIG KEY `$this->key`: $this->oldValue => $this->value");
+        if($this->type == $fixState){
+            $this->info("FIX BATCH FROM FILE: ". $this->readLogFtpFailPath);
+        }
         $this->info("DATE: ". date('Y-m-d H:i:s', time()));
         $this->info("Log FTP Success: ". basename($this->logFtpSuccessPath));
         $this->info("Log FTP Fail: ". basename($this->logFtpFailPath));
@@ -77,12 +101,15 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
             'company.contract_type'
         ));
         $select->setIntegrityCheck(false);
-        if(isset($ids) && count($ids) > 0 ){
+        if(isset($ids) && count($ids) > 0 && $this->type == $fixState){
             $select->where('company.id IN (?)', $ids);
         }
         $select->joinLeft('associated_company_hp', 'associated_company_hp.company_id = company.id', array());
         $select->joinRight('hp_page','associated_company_hp.current_hp_id = hp_page.hp_id', array());
-        $select->where('hp_page.published_at < ?', $this->publishDate);
+        // publish date will only work with state = `update`, not `fix`
+        if($this->type == $updateState){
+            $select->where('hp_page.published_at < ?', $this->publishDate);
+        }
         $select->where('company.delete_flg = ?', 0);
         $select->order('hp_page.published_at DESC');
         $select->group(array('company.id'));

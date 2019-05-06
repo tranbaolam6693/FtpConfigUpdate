@@ -254,4 +254,9 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
     protected function ftpFail($message){
         return $this->logger()->crit($message);
     }
+
+    protected function contains($needle, $haystack)
+    {
+        return strpos($haystack, $needle) !== false;
+    }
 }
