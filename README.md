@@ -2,25 +2,35 @@
 
 **Install**
 
-Bỏ FtpConfig.php => /library/Custom/Controller/Batch/
+Bỏ `FtpConfig.php` => `/library/Custom/Controller/Batch/`
 
-Bỏ FtpConfigUpdate.php + FtpConfigRollback.php => /application/batch/controllers/
+Bỏ `FtpConfigUpdate.php` + `FtpConfigRollback.php` => `/application/batch/controllers/`
 
 **Usage:**
 
-_> php index.php development app FtpConfigUpdate {key} {old_value] {new_value} {date} {log_ftp_fail}_
+_>  php index.php development app FtpConfigUpdate `type` `param` `key` `old_value` `new_value`_
 
-_> php index.php development app FtpConfigRollback {version} {date} {log_ftp_fail}_
+_> php index.php development app FtpConfigRollback `version` `param`_
 
+**Update Batch:**
 
+_>  Example: php index.php development app FtpConfigUpdate `update` `2019-05-03 00:00:00` `domain` `127.0.0.1` `127.0.0.1a`_
+
+**Fix Update Batch (If connect FTP Fail):**
+
+_>  Example: php index.php development app FtpConfigUpdate `fix` `Batch_FtpConfigUpdate_FtpFail_1557110064_1543762800` `domain` `127.0.0.1` `127.0.0.1a`_
+
+**Rollback Batch:**
+
+_> php index.php development app FtpConfigRollback `1.0` `Batch_FtpConfigUpdate_FtpSuccess_1557110064_1543762800`_
 
 **Note::** 
 
-{log_ftp_fail} có thể truyền hoặc không.
+_`version` được set trong file `FtpConfigUpdate.php`
 
-_Ví dụ file log là: /var/www/html/application/../log/Batch_FtpConfigUpdate_FtpLoginFail_1556855778.log_
+_`type` chỉ được truyền `update` hoặc `fix`
 
-_> Thì {log_ftp_fail} = Batch_FtpConfigUpdate_FtpLoginFail_1556855778_
+_Ví dụ file log là: `/var/www/html/application/../log/Batch_FtpConfigUpdate_FtpLoginFail_1556855778.log`_
 
-Xem hình log khi chạy batch sẽ thấy log FTP Fail: http://prntscr.com/njud92
+_> Thì `param` = `Batch_FtpConfigUpdate_FtpLoginFail_1556855778`_
 
