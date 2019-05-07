@@ -66,20 +66,11 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
                 $this->publishDate = $args[2];
         }
 
-        if( !isset($args[3]) ){
-            throw new Exception('Need old value to check');
+        if(!isset($args[3])){
+            throw new Exception('Need value to update');
         }
 
-        if(!isset($args[4])){
-            throw new Exception('Need new value to update');
-        }
-
-        if($args[3] == $args[4]){
-            throw new Exception('Old and new value cannot be the same');
-        }
-
-        $this->oldValue = $args[3];
-        $this->value = $args[4];
+        $this->value = $args[3];
 
         // set log to write company success/fail
         $publishDateObject = \DateTime::createFromFormat('Y-m-d H:m:s', $this->publishDate);
@@ -90,7 +81,7 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
         $this->setFtpLog($publishDateTimestamp);
 
         // write info
-        $this->info("UPDATE CONFIG KEY `". implode(',', $this->key)."`: $this->oldValue => $this->value");
+        $this->info("UPDATE CONFIG KEY `". implode(',', $this->key)."`: $this->value");
         if($this->type == $fixState){
             $this->info("FIX BATCH FROM FILE: ". $this->readLogFtpFailPath);
         }
@@ -191,7 +182,7 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
             $removeSchema = in_array($fileName,$this->filesNoSchemaUrl());
 
             //update new content
-            $setContent = $this->setContent($content,$removeSchema, $fileName);
+            $setContent = $this->setContent($content,$removeSchema);
 
             // if file is effect
             if($setContent['isChanged']){

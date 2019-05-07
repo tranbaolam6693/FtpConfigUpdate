@@ -7,7 +7,7 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
     protected $readLogFtpSuccessPath = null;
     protected $logFtpSuccessPath = null;
     protected $key = ['domain','api_url'];
-    protected $value, $oldValue, $publishDate;
+    protected $value, $publishDate;
     protected $path = '/files/public/setting/';
     protected $useBackup = true;
     protected $loginFailed = 'FTP_LOGIN_FAILED';
@@ -64,11 +64,10 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
     /**
      * Set new Content
      * @param string $content
-     * @param string $removeSchema
-     * @param string $fileName
+     * @param bool $removeSchema
      * @return array
      */
-    protected function setContent($content, $removeSchema = false, $fileName = ''){
+    protected function setContent($content, $removeSchema = false){
 
         // define text string
         $newContent = "";
@@ -83,19 +82,16 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
             // if not found keys, continue to new line
             if(strpos($v, 'domain') === false && strpos($v, 'api_url') === false) continue;
 
-            //convert data if remove schema url
             $newData = $this->value;
-            $oldValue = $this->oldValue;
-            if($removeSchema){
-                $newData = $this->removeSchemaUrl($newData);
-                $oldValue = $this->removeSchemaUrl($oldValue);
+
+            try{
+                $setDomain = $this->replaceDomain($v,$newData, $removeSchema);
+                $data[$k] = $setDomain['data'];
+                $isChanged = $setDomain['isChanged'];
             }
-
-            // if have old value, will check if not found old value => continue
-            if(strpos($v, $oldValue) === false) continue;
-
-            $data[$k] = str_replace($oldValue,$newData,$v);
-            $isChanged = true;
+            catch (Exception $e){
+                // nah
+            }
         }
 
         //update back as text string
@@ -282,5 +278,53 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
 
     protected function removeSchemaUrl($url){
         return preg_replace("(^https?://)", "", $url );
+    }
+
+    /**
+     * @param string $line
+     * @param string $newValue
+     * @param bool $removeSchema
+     * @return mixed
+     */
+    function replaceDomain($line,$newValue, $removeSchema = false){
+
+        $isChanged = false;
+
+        if($removeSchema){
+            $newValue = $this->removeSchemaUrl($newValue);
+        }
+
+        $startRegex = '/^';
+        $endRegex = '$/';
+        $regex = '('.implode('|', $this->key).')( ?= ?)(...*)';
+
+        preg_match($startRegex.$regex.$endRegex,$line,$re);
+
+        $key = $re[1];
+
+        $url = preg_replace('/["\']/','',$re[3]);
+
+        $fakeUrl = $url;
+        $parsed = parse_url($fakeUrl);
+        if (empty($parsed['scheme'])) {
+            $fakeUrl = 'http://' . ltrim($fakeUrl, '/');
+        }
+        $oldValue = parse_url($fakeUrl, PHP_URL_HOST);
+
+        $originalParts = parse_url($url);
+        if(isset($originalParts['scheme']) && !empty($originalParts['scheme'])){
+            $oldValue =  'http://' .$oldValue;
+        }
+
+        if($oldValue != $newValue){
+            $isChanged = true;
+        }
+
+        $data = str_replace($oldValue,$newValue,$line);
+
+        return [
+            'data' => $data,
+            'isChanged' => $isChanged
+        ];
     }
 }
