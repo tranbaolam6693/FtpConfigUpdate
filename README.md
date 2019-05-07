@@ -8,17 +8,17 @@ Add `FtpConfigUpdate.php` + `FtpConfigRollback.php` => `/application/batch/contr
 
 **Usage:**
 
-_>  php index.php development app FtpConfigUpdate `type` `param` `old_value` `new_value`_
+_>  php index.php development app FtpConfigUpdate `type` `param` `new_value`_
 
 _> php index.php development app FtpConfigRollback `version` `param`_
 
 **Update Batch:**
 
-_>  Example: php index.php development app FtpConfigUpdate `update` `"2019-05-03 00:00:00"` `127.0.0.1` `127.0.0.1a`_
+_>  Example: php index.php development app FtpConfigUpdate `update` `"2019-05-03 00:00:00"` `http://google.com` _
 
 **Fix Update Batch (If connect FTP Fail):**
 
-_>  Example: php index.php development app FtpConfigUpdate `fix` `Batch_FtpConfigUpdate_FtpFail_1557110064_1543762800` `127.0.0.1` `127.0.0.1a`_
+_>  Example: php index.php development app FtpConfigUpdate `fix` `Batch_FtpConfigUpdate_FtpFail_1557110064_1543762800` `http://google.com`_
 
 **Rollback Batch:**
 
