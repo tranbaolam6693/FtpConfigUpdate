@@ -37,10 +37,15 @@ class Batch_FtpConfigRollback extends Custom_Controller_Batch_FtpConfig
         $this->setReadLogFtpFailPath($args[2]);
         $ids = $this->readFromLog();
 
+        $publishDateObject = \DateTime::createFromFormat('Y-m-d H:m:s', $this->publishDate);
+        $publishDateTimestamp = $publishDateObject->getTimestamp();
+        $this->setFtpLog($publishDateTimestamp);
+
         // write info
         $this->info("ROLLBACK CONFIG VERSION `$this->version`");
         $this->info("DATE: ". date('Y-m-d H:i:s', time()));
-        $this->info("Log FTP Fail: $this->logFtpFailPath");
+        $this->info("Log FTP Success: ". basename($this->logFtpSuccessPath));
+        $this->info("Log FTP Fail: ". basename($this->logFtpFailPath));
         $this->info('======================================================');
 
         $companyTable = App_Model_DbTable_Company::master();
@@ -82,12 +87,13 @@ class Batch_FtpConfigRollback extends Custom_Controller_Batch_FtpConfig
                     $company->ftp_password
                 );
                 $this->info("*** STATUS : Done");
+                $this->ftpSuccess($company->id);
                 $success++;
             }
             catch(\Exception $e){
                 $this->info("*** STATUS : Failed");
                 $this->info($e->getMessage());
-                $this->logger()->crit($company->id);
+                $this->ftpFail($company->id);
                 $fail++;
             }
             $this->info('======================================================');
