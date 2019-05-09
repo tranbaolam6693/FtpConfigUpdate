@@ -39,38 +39,44 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
         $this->type = $args[1];
 
         if(!isset($args[2])){
-            if($this->type == 'update'){
-                throw new Exception('Need set publish date');
+            throw new Exception('Need value to update');
+        }
+
+        $this->value = $args[2];
+
+        $currentDate = date('Y-m-d H:m:s', time());
+
+        if(!isset($args[3])){
+            switch($this->type) {
+                case $fixState:
+                    throw new Exception('Need set file FTP fail list');
+                    break;
+                default:
+                    $args[3] = $currentDate;
+                    //throw new Exception('Need set publish date');
             }
-            else throw new Exception('Need set file FTP fail list');
         }
 
         switch($this->type){
             case $fixState:
-                if (!$this->contains('Batch_FtpConfigUpdate_FtpFail',$args[2])) {
+                if (!$this->contains('Batch_FtpConfigUpdate_FtpFail',$args[3])) {
                     throw new Exception('Invalid. File name must be `Batch_FtpConfigUpdate_FtpFail_{time_run_batch}_{publish_date}`.');
                 }
 
                 // read publish date from file name
-                $extData = explode('_',$args[2]);
+                $extData = explode('_',$args[3]);
                 $publishDateRawData = end($extData);
                 $dt = new DateTime();
                 $dt->setTimestamp($publishDateRawData);
                 $this->publishDate = $dt->format('Y-m-d H:m:s');
 
-                $this->setReadLogFtpFailPath($args[2]);
+                $this->setReadLogFtpFailPath($args[3]);
                 // đọc từ file này lấy ra list ids company bị lỗi
                 $ids = $this->readFromLog();
                 break;
             default:
-                $this->publishDate = $args[2];
+                $this->publishDate = $args[3];
         }
-
-        if(!isset($args[3])){
-            throw new Exception('Need value to update');
-        }
-
-        $this->value = $args[3];
 
         // set log to write company success/fail
         $publishDateObject = \DateTime::createFromFormat('Y-m-d H:m:s', $this->publishDate);
@@ -85,7 +91,7 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
         if($this->type == $fixState){
             $this->info("FIX BATCH FROM FILE: ". $this->readLogFtpFailPath);
         }
-        $this->info("DATE: ". date('Y-m-d H:i:s', time()));
+        $this->info("DATE: $currentDate");
         $this->info("Log FTP Success: ". basename($this->logFtpSuccessPath));
         $this->info("Log FTP Fail: ". basename($this->logFtpFailPath));
         $this->info('======================================================');
@@ -104,19 +110,21 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
         if(isset($ids) && count($ids) > 0 && $this->type == $fixState){
             $select->where('company.id IN (?)', $ids);
         }
-        $select->joinLeft('associated_company_hp', 'associated_company_hp.company_id = company.id', array());
-        $select->joinRight('hp_page','associated_company_hp.current_hp_id = hp_page.hp_id', array());
+//        $select->joinLeft('associated_company_hp', 'associated_company_hp.company_id = company.id', array());
+//        $select->joinRight('hp_page','associated_company_hp.current_hp_id = hp_page.hp_id', array());
         // publish date will only work with state = `update`, not `fix`
-        if($this->type == $updateState){
-            $select->where('hp_page.published_at < ?', $this->publishDate);
-        }
+//        if($this->type == $updateState){
+//            $select->where('hp_page.published_at < ?', $this->publishDate);
+//        }
         $select->where('company.delete_flg = ?', 0);
-        $select->order('hp_page.published_at DESC');
-        $select->group(array('company.id'));
+        //$select->order('hp_page.published_at DESC');
+//        $select->group(array('company.id'));
         //end build query select
 
         $companies = $companyTable->setAutoLogicalDelete(false)->fetchAll($select);
 
+        $success = 0;
+        $fail = 0;
         foreach($companies as $company){
             // pass site demo
             if($company->contract_type == App_Model_List_CompanyAgreementType::CONTRACT_TYPE_DEMO) continue;
@@ -131,14 +139,20 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
                 );
                 $this->info("*** STATUS : Done");
                 $this->ftpSuccess($company->id);
+                $success++;
             }
             catch(\Exception $e){
                 $this->info("*** STATUS : Failed");
                 $this->info($e->getMessage());
                 $this->ftpFail($company->id);
+                $fail++;
             }
             $this->info('======================================================');
         }
+        $this->info('** SUMMARY UPDATED:');
+        $this->info("Success: $success");
+        $this->info("Fail: $fail");
+
     }
 
     /**

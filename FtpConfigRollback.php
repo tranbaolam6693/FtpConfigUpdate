@@ -20,7 +20,7 @@ class Batch_FtpConfigRollback extends Custom_Controller_Batch_FtpConfig
             throw new Exception('Need set file FTP list to rollback');
         }
 
-        if (!$this->contains('Batch_FtpConfigUpdate_FtpSuccess',$args[2])) {
+        if (!$this->contains('Batch_FtpConfigUpdate_FtpSuccess_',$args[2])) {
             throw new Exception('Invalid. File name must be `Batch_FtpConfigUpdate_FtpSuccess_{time_run_batch}_{publish_date}`.');
         }
 
@@ -57,16 +57,18 @@ class Batch_FtpConfigRollback extends Custom_Controller_Batch_FtpConfig
         if(isset($ids) && count($ids) > 0 ){
             $select->where('company.id IN (?)', $ids);
         }
-        $select->joinLeft('associated_company_hp', 'associated_company_hp.company_id = company.id', array());
-        $select->joinRight('hp_page','associated_company_hp.current_hp_id = hp_page.hp_id', array());
+//        $select->joinLeft('associated_company_hp', 'associated_company_hp.company_id = company.id', array());
+//        $select->joinRight('hp_page','associated_company_hp.current_hp_id = hp_page.hp_id', array());
         //$select->where('hp_page.published_at < ?', $this->publishDate);
         $select->where('company.delete_flg = ?', 0);
-        $select->order('hp_page.published_at DESC');
-        $select->group(array('company.id'));
+//        $select->order('hp_page.published_at DESC');
+//        $select->group(array('company.id'));
         //end build query select
 
         $companies = $companyTable->setAutoLogicalDelete(false)->fetchAll($select);
 
+        $success = 0;
+        $fail = 0;
         foreach($companies as $company){
             // pass site demo
             if($company->contract_type == App_Model_List_CompanyAgreementType::CONTRACT_TYPE_DEMO) continue;
@@ -80,14 +82,20 @@ class Batch_FtpConfigRollback extends Custom_Controller_Batch_FtpConfig
                     $company->ftp_password
                 );
                 $this->info("*** STATUS : Done");
+                $success++;
             }
             catch(\Exception $e){
                 $this->info("*** STATUS : Failed");
                 $this->info($e->getMessage());
                 $this->logger()->crit($company->id);
+                $fail++;
             }
             $this->info('======================================================');
         }
+
+        $this->info('** SUMMARY:');
+        $this->info("Success: $success");
+        $this->info("Fail: $fail");
     }
 
     /**
