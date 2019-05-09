@@ -1,0 +1,24 @@
+[2019-05-09T16:25:30+09:00][INFO][6] /////////////// START ///////////////
+[2019-05-09T16:25:30+09:00][INFO][6] ROLLBACK CONFIG VERSION `1.0`
+[2019-05-09T16:25:30+09:00][INFO][6] DATE: 2019-05-09 16:25:30
+[2019-05-09T16:25:30+09:00][INFO][6] Log FTP Fail: 
+[2019-05-09T16:25:30+09:00][INFO][6] ======================================================
+[2019-05-09T16:25:30+09:00][INFO][6] Company: 87
+[2019-05-09T16:25:30+09:00][INFO][6] Copy /files/public/setting/backups_1_0/api.ini.bak > /files/public/setting/api.ini
+[2019-05-09T16:25:30+09:00][INFO][6] Copied
+[2019-05-09T16:25:30+09:00][INFO][6] Copy /files/public/setting/backups_1_0/contact_contact_14424.ini.bak > /files/public/setting/contact_contact_14424.ini
+[2019-05-09T16:25:30+09:00][INFO][6] Copied
+[2019-05-09T16:25:30+09:00][INFO][6] Copy /files/public/setting/backups_1_0/contact_kasi-jigyou_14427.ini.bak > /files/public/setting/contact_kasi-jigyou_14427.ini
+[2019-05-09T16:25:31+09:00][INFO][6] Copied
+[2019-05-09T16:25:31+09:00][INFO][6] Copy /files/public/setting/backups_1_0/contact_kasi-kyojuu_14426.ini.bak > /files/public/setting/contact_kasi-kyojuu_14426.ini
+[2019-05-09T16:25:31+09:00][INFO][6] Copied
+[2019-05-09T16:25:31+09:00][INFO][6] Copy /files/public/setting/backups_1_0/contact_request-kasi-jigyou_14418.ini.bak > /files/public/setting/contact_request-kasi-jigyou_14418.ini
+[2019-05-09T16:25:31+09:00][INFO][6] Copied
+[2019-05-09T16:25:31+09:00][INFO][6] Copy /files/public/setting/backups_1_0/contact_request-kasi-kyojuu_14417.ini.bak > /files/public/setting/contact_request-kasi-kyojuu_14417.ini
+[2019-05-09T16:25:31+09:00][INFO][6] Copied
+[2019-05-09T16:25:31+09:00][INFO][6] *** STATUS : Done
+[2019-05-09T16:25:31+09:00][INFO][6] ======================================================
+[2019-05-09T16:25:31+09:00][INFO][6] ** SUMMARY:
+[2019-05-09T16:25:31+09:00][INFO][6] Success: 1
+[2019-05-09T16:25:31+09:00][INFO][6] Fail: 0
+[2019-05-09T16:25:31+09:00][INFO][6] //////////////// END ////////////////

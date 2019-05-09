@@ -1,0 +1,34 @@
+[2019-05-09T16:23:48+09:00][INFO][6] /////////////// START ///////////////
+[2019-05-09T16:23:48+09:00][INFO][6] UPDATE CONFIG KEY `domain,api_url`: http://google.local
+[2019-05-09T16:23:48+09:00][INFO][6] DATE: 2019-05-09 16:05:48
+[2019-05-09T16:23:48+09:00][INFO][6] Log FTP Success: Batch_FtpConfigUpdate_FtpSuccess_1557386628_1557385248.log
+[2019-05-09T16:23:48+09:00][INFO][6] Log FTP Fail: Batch_FtpConfigUpdate_FtpFail_1557386628_1557385248.log
+[2019-05-09T16:23:48+09:00][INFO][6] ======================================================
+[2019-05-09T16:23:49+09:00][INFO][6] Company: 87
+[2019-05-09T16:23:50+09:00][INFO][6] *** EFFECTED_FILE: 6
+[2019-05-09T16:23:50+09:00][INFO][6] - /files/public/setting/api.ini
+[2019-05-09T16:23:50+09:00][INFO][6] - /files/public/setting/contact_contact_14424.ini
+[2019-05-09T16:23:50+09:00][INFO][6] - /files/public/setting/contact_kasi-jigyou_14427.ini
+[2019-05-09T16:23:50+09:00][INFO][6] - /files/public/setting/contact_kasi-kyojuu_14426.ini
+[2019-05-09T16:23:50+09:00][INFO][6] - /files/public/setting/contact_request-kasi-jigyou_14418.ini
+[2019-05-09T16:23:50+09:00][INFO][6] - /files/public/setting/contact_request-kasi-kyojuu_14417.ini
+[2019-05-09T16:23:50+09:00][INFO][6] *** UPDATED/EFFECTED FILES: 6/6
+[2019-05-09T16:23:50+09:00][INFO][6] Detail Info:
+[2019-05-09T16:23:50+09:00][INFO][6] - /files/public/setting/api.ini
+[2019-05-09T16:23:50+09:00][INFO][6] > Updated
+[2019-05-09T16:23:50+09:00][INFO][6] - /files/public/setting/contact_contact_14424.ini
+[2019-05-09T16:23:50+09:00][INFO][6] > Updated
+[2019-05-09T16:23:50+09:00][INFO][6] - /files/public/setting/contact_kasi-jigyou_14427.ini
+[2019-05-09T16:23:50+09:00][INFO][6] > Updated
+[2019-05-09T16:23:50+09:00][INFO][6] - /files/public/setting/contact_kasi-kyojuu_14426.ini
+[2019-05-09T16:23:50+09:00][INFO][6] > Updated
+[2019-05-09T16:23:50+09:00][INFO][6] - /files/public/setting/contact_request-kasi-jigyou_14418.ini
+[2019-05-09T16:23:50+09:00][INFO][6] > Updated
+[2019-05-09T16:23:50+09:00][INFO][6] - /files/public/setting/contact_request-kasi-kyojuu_14417.ini
+[2019-05-09T16:23:50+09:00][INFO][6] > Updated
+[2019-05-09T16:23:50+09:00][INFO][6] *** STATUS : Done
+[2019-05-09T16:23:50+09:00][INFO][6] ======================================================
+[2019-05-09T16:23:50+09:00][INFO][6] ** SUMMARY UPDATED:
+[2019-05-09T16:23:50+09:00][INFO][6] Success: 1
+[2019-05-09T16:23:50+09:00][INFO][6] Fail: 0
+[2019-05-09T16:23:50+09:00][INFO][6] //////////////// END ////////////////
