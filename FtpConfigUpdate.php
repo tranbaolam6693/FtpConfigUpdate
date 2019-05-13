@@ -46,19 +46,11 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
 
         $currentDate = date('Y-m-d H:m:s', time());
 
-        if(!isset($args[3])){
-            switch($this->type) {
-                case $fixState:
-                    throw new Exception('Need set file FTP fail list');
-                    break;
-                default:
-                    $args[3] = $currentDate;
-                    //throw new Exception('Need set publish date');
-            }
-        }
-
         switch($this->type){
             case $fixState:
+                if(!isset($args[3])){
+                    throw new Exception('Need set file FTP fail list');
+                }
                 if (!$this->contains('Batch_FtpConfigUpdate_FtpFail',$args[3])) {
                     throw new Exception('Invalid. File name must be `Batch_FtpConfigUpdate_FtpFail_{time_run_batch}_{publish_date}`.');
                 }
@@ -75,7 +67,10 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
                 $ids = $this->readFromLog();
                 break;
             default:
-                $this->publishDate = $args[3];
+                $this->publishDate = $currentDate;
+                if(isset($args[3])){
+                    $ids = explode(',',$args[3]);
+                }
         }
 
         // set log to write company success/fail

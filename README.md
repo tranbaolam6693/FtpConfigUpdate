@@ -8,19 +8,19 @@ Add `FtpConfigUpdate.php` + `FtpConfigRollback.php` => `/application/batch/contr
 
 **Usage:**
 
-_>  php index.php development app FtpConfigUpdate `type` `new_value` `param`_
+_>  php index.php development app FtpConfigUpdate `type` `new_value` `list_id`_
 
 _> php index.php development app FtpConfigRollback `version` `param`_
 
 **Update Batch:**
 
-_>  Example: php index.php development app FtpConfigUpdate `update` `http://google.com` `"2019-05-03 00:00:00"` _
+_>  Example: php index.php development app FtpConfigUpdate `update` `http://google.com` `1,2,3,4,5`_
 
-Update: `param` bây giờ là optional (nếu không truyền thì lấy ngày giờ hiện tại). Company hiện tại là get all.
+Update: `list_id` là optional (không truyền sẽ lấy all)
 
 **Fix Update Batch (If connect FTP Fail):**
 
-_>  Example: php index.php development app FtpConfigUpdate `fix` `http://google.com` `Batch_FtpConfigUpdate_FtpFail_1557110064_1543762800` _
+_>  Example: php index.php development app FtpConfigUpdate `fix` `http://google.com` `Batch_FtpConfigUpdate_FtpFail_1557110064_1543762800`_
 
 **Rollback Batch:**
 
