@@ -22,6 +22,8 @@ Update: `list_id` là optional (không truyền sẽ lấy all)
 
 _>  Example: php index.php development app FtpConfigUpdate `fix` `http://google.com` `Batch_FtpConfigUpdate_FtpFail_1557110064_1543762800`_
 
+Update: file name của log bắt buộc phải có `Batch_FtpConfigUpdate_FtpFail_` 
+
 **Rollback Batch:**
 
 _> php index.php development app FtpConfigRollback `1.0` `Batch_FtpConfigUpdate_FtpSuccess_1557110064_1543762800`_
