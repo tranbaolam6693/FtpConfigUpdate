@@ -197,11 +197,16 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
             if($setContent['isChanged']){
                 $fileEffected[] = $file;
 
+                $skipBackup = false;
                 //backup
                 if($this->useBackup){
                     $bkFileName = $fileName.$this->backupExtension;
-                    $desPath = $baseCommand.$this->getBackUpFullPath().$bkFileName;
-                    copy($command, $desPath,$stream_context);
+                    $desPath = $this->getBackUpFullPath().$bkFileName;
+                    $desCommand = $baseCommand.$desPath;
+                    if(file_exists($desCommand) ) {
+                        $skipBackup = true;
+                    }
+                    else copy($command, $desCommand, $stream_context);
                 }
 
                 $newContent = $setContent['content'] ;
@@ -214,7 +219,10 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
                     $fileUpdated[] = $file;
                     $fileUpdatedCount++;
 
-                    $messages[$file] = "> Updated";
+                    if($this->useBackup && $skipBackup == true){
+                        $messages[$file] = "> Updated. But skipped backup (existed)";
+                    }
+                    else $messages[$file] = "> Updated";
                 }
                 catch(\Exception $e){
                     $messages[$file] = "> Failed. Error: ".$e->getMessage();
