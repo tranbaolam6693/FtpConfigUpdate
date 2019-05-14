@@ -313,7 +313,7 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
 
         $originalParts = parse_url($url);
         if(isset($originalParts['scheme']) && !empty($originalParts['scheme'])){
-            $oldValue =  'http://' .$oldValue;
+            $oldValue =  $originalParts['scheme']. '://' .$oldValue;
         }
 
         if($oldValue != $newValue){
