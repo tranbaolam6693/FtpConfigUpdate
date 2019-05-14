@@ -102,7 +102,7 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
             'company.contract_type'
         ));
         $select->setIntegrityCheck(false);
-        if(isset($ids) && count($ids) > 0 && $this->type == $fixState){
+        if(isset($ids) && count($ids) > 0){
             $select->where('company.id IN (?)', $ids);
         }
 //        $select->joinLeft('associated_company_hp', 'associated_company_hp.company_id = company.id', array());
