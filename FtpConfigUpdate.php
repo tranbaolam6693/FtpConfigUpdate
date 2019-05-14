@@ -196,38 +196,6 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
             // if file is effect
             if($setContent['isChanged']){
                 $fileEffected[] = $file;
-
-                $skipBackup = false;
-                //backup
-                if($this->useBackup){
-                    $bkFileName = $fileName.$this->backupExtension;
-                    $desPath = $this->getBackUpFullPath().$bkFileName;
-                    $desCommand = $baseCommand.$desPath;
-                    if(file_exists($desCommand) ) {
-                        $skipBackup = true;
-                    }
-                    else copy($command, $desCommand, $stream_context);
-                }
-
-                $newContent = $setContent['content'] ;
-                try{
-                    //overwrite
-                    $fp = fopen($command,"w", 0, $stream_context);
-                    fwrite($fp,$newContent);
-                    fclose($fp);
-
-                    $fileUpdated[] = $file;
-                    $fileUpdatedCount++;
-
-                    if($this->useBackup && $skipBackup == true){
-                        $messages[$file] = "> Updated. But skipped backup (existed)";
-                    }
-                    else $messages[$file] = "> Updated";
-                }
-                catch(\Exception $e){
-                    $messages[$file] = "> Failed. Error: ".$e->getMessage();
-                }
-
             }
 
         }
