@@ -12,6 +12,7 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
     protected $useBackup = true;
     protected $loginFailed = 'FTP_LOGIN_FAILED';
     protected $backupExtension = '.bak';
+    protected $folderLog = 'ftp_log';
 
     protected function streamOptions(){
         return array('ftp' => array('overwrite' => true));
@@ -200,12 +201,16 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
         return $data;
     }
 
+    protected function getLogFullPath($filename){
+        return APPLICATION_PATH . '/../log/'. $this->folderLog . '/' . $filename  . '.log';
+    }
+
     /**
      * set log file to read
      * @param string $filename
      */
     protected function setReadLogFtpFailPath($filename){
-        $this->readLogFtpFailPath =  APPLICATION_PATH . '/../log/'  . $filename  . '.log';
+        $this->readLogFtpFailPath =  $this->getLogFullPath($filename);
     }
 
     /**
@@ -221,7 +226,7 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
      * @param string $filename
      */
     protected function setReadLogFtpSuccessPath($filename){
-        $this->readLogFtpSuccessPath =  APPLICATION_PATH . '/../log/'  . $filename  . '.log';
+        $this->readLogFtpSuccessPath =  $this->getLogFullPath($filename);
     }
 
     /**
@@ -245,7 +250,8 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
 
         foreach($configs as $key => $config){
             $path = 'log'.$key.'Path';
-            $this->{$path} = $filename = APPLICATION_PATH . '/../log/' . get_class($this) . '_'.$key.'_' . time().'_'. $publishDate  . '.log';
+            $filename = get_class($this) . '_'.$key.'_' . time().'_'. $publishDate;
+            $this->{$path} = $filename = $this->getLogFullPath($filename);
 
             if (@file_exists($filename) || false !== @file_put_contents($filename, '', FILE_APPEND)) {
                 @chmod($filename, 0777);
