@@ -40,7 +40,14 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
             $states = explode('_',$args[1]);
             $currentState = $states[0];
             if($currentState == self::$UPDATE_STATE){
-                if(isset($states[1]) && is_numeric($states[1]) && $states[1] > 0 && $states[1] <= $this->maxPart){
+                if(isset($states[1])){
+                    if(!is_numeric($states[1])){
+                        throw new Exception("Second param can only be numeric");
+                    }
+                    $valid = $states[1] > 0 && $states[1] <= $this->maxPart;
+                    if(!$valid){
+                        throw new Exception("Second param must > 0 and <= ".$this->maxPart);
+                    }
                     $this->currentPart = $states[1];
                 }
             }
