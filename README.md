@@ -18,6 +18,8 @@ _>  Example: php index.php development app FtpConfigUpdate `update` `http://goog
 
 Update: `list_id` là optional (không truyền sẽ lấy all)
 
+Update: `type` bây giờ có thể truyền theo dạng update_{number} (từ 1 tới 6). Nếu chỉ truyền update thì chạy hết companies
+
 **Fix Update Batch (If connect FTP Fail):**
 
 _>  Example: php index.php development app FtpConfigUpdate `fix` `http://google.com` `Batch_FtpConfigUpdate_FtpFail_1557110064_1543762800`_

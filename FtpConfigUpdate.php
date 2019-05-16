@@ -150,29 +150,30 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
 
         $success = 0;
         $fail = 0;
-        foreach($companies as $company){
-            // pass site demo
-            if($company->contract_type == App_Model_List_CompanyAgreementType::CONTRACT_TYPE_DEMO) continue;
-            $textMessage = "Company: $company->id"  ;
-            $this->info("$textMessage");
-            try{
-                //update
-                $this->update(
-                    $company->ftp_server_name,
-                    $company->ftp_user_id,
-                    $company->ftp_password
-                );
-                $this->info("*** STATUS : Done");
-                $this->ftpSuccess($company->id);
-                $success++;
+        if(count($companies) > 0) {
+            foreach ($companies as $company) {
+                // pass site demo
+                if ($company->contract_type == App_Model_List_CompanyAgreementType::CONTRACT_TYPE_DEMO) continue;
+                $textMessage = "Company: $company->id";
+                $this->info("$textMessage");
+                try {
+                    //update
+                    $this->update(
+                        $company->ftp_server_name,
+                        $company->ftp_user_id,
+                        $company->ftp_password
+                    );
+                    $this->info("*** STATUS : Done");
+                    $this->ftpSuccess($company->id);
+                    $success++;
+                } catch (\Exception $e) {
+                    $this->info("*** STATUS : Failed");
+                    $this->info($e->getMessage());
+                    $this->ftpFail($company->id);
+                    $fail++;
+                }
+                $this->info('======================================================');
             }
-            catch(\Exception $e){
-                $this->info("*** STATUS : Failed");
-                $this->info($e->getMessage());
-                $this->ftpFail($company->id);
-                $fail++;
-            }
-            $this->info('======================================================');
         }
         $this->info('** SUMMARY UPDATED:');
         $this->info("Success: $success");
