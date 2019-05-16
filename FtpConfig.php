@@ -333,4 +333,46 @@ abstract class Custom_Controller_Batch_FtpConfig extends Custom_Controller_Batch
             'isChanged' => $isChanged
         ];
     }
+
+    public function array_partition(array $a, $np, $pad = true)
+    {
+        $np = (int)$np;
+        if ($np <= 0) {
+            trigger_error('partition count must be greater than zero', E_USER_NOTICE);
+            return array();
+        }
+        $c = count($a);
+        $per_array = (int)floor($c / $np);
+        $rem = $c % $np;
+        // special case for an empty array
+        if ($c === 0) {
+            if ($pad) {
+                $result = array_fill(0, $np, array());
+            } else {
+                $result = array();
+            }
+        }
+        // array_chunk will work if the remainder is 0 or np-1, or if there are more partitions than elements in the array
+        elseif ($rem === 0 || $rem == $np - 1 || $np >= $c) {
+            // if there is a remainder each partition will need 1 more
+            $result = array_chunk($a, $per_array + ($rem > 0 ? 1 : 0));
+            // if necessary, pad out the array with empty arrays
+            if ($pad && $np > $c) {
+                $result = array_merge($result, array_fill(0, $np - $c, array()));
+            }
+        }
+        // use the slower case if 0 < remainder < np-1 and there are more elements in the array than paritions
+        // ($rem > 0 && $rem < $np - 1 && $np < $c)
+        else {
+            $split = $rem * ($per_array + 1);
+            // the first $rem partitions will have $per_array + 1
+            $result = array_chunk(array_slice($a, 0, $split), $per_array+1);
+            // the rest of the partitions will have per_array
+            $result = array_merge($result, array_chunk(array_slice($a, $split), $per_array));
+            // no padding is necessary if the conditions for this case are met
+        }
+        return $result;
+    }
+
+
 }

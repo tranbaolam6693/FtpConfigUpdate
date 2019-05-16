@@ -16,6 +16,8 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
     protected $type = 'update';
     protected static $FIX_STATE = 'fix';
     protected static $UPDATE_STATE = 'update';
+    protected $currentPart = false;
+    protected $maxPart = 6;
 
     /**
      * @param array $args
@@ -32,11 +34,26 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
 
         $updateState = self::$UPDATE_STATE;
         $fixState = self::$FIX_STATE;
-        if(!in_array($args[1],[$updateState, $fixState])){
+
+        // can exolode
+        if(strpos($args[1], '_') !== false) {
+            $states = explode('_',$args[1]);
+            $currentState = $states[0];
+            if($currentState == self::$UPDATE_STATE){
+                if(isset($states[1]) && is_numeric($states[1]) && $states[1] > 0 && $states[1] <= $this->maxPart){
+                    $this->currentPart = $states[1];
+                }
+            }
+        }
+        else {
+            $currentState = $args[1];
+        }
+
+        if(!in_array($currentState,[$updateState, $fixState])){
             throw new Exception("Only support type `$updateState` or `$fixState`");
         }
 
-        $this->type = $args[1];
+        $this->type = $currentState;
 
         if(!isset($args[2])){
             throw new Exception('Need value to update');
@@ -116,7 +133,20 @@ class Batch_FtpConfigUpdate extends Custom_Controller_Batch_FtpConfig
 //        $select->group(array('company.id'));
         //end build query select
 
-        $companies = $companyTable->setAutoLogicalDelete(false)->fetchAll($select);
+        $data = $companyTable->setAutoLogicalDelete(false)->fetchAll($select);
+
+        // cannot use toArray(), it convert all to array, but we need to use item as object
+        $companies = [];
+        foreach($data as $company){
+            $companies[] = $company;
+        }
+
+        if($this->type == self::$UPDATE_STATE && $this->currentPart !== false){
+            $companies = $this->array_partition($companies,$this->maxPart);
+            $companies = isset($companies[$this->currentPart - 1])
+                ? $companies[$this->currentPart - 1]
+                : [];
+        }
 
         $success = 0;
         $fail = 0;
