@@ -1375,7 +1375,6 @@ class Admin_CompanyController extends Custom_Controller_Action
 
 		$agree_anmes = App_Model_List_CompanyAgreementType::getInstance()->getAll();
 
-		// get array id of company
         $ids = $accountRows = $assCompHpRows = $secondEstateRows = $originalSettingRows = [];
 
         foreach($rows_arr as $key => $val) {
